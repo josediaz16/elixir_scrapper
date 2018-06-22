@@ -10,6 +10,7 @@ defmodule App.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(AppWeb.Endpoint, []),
+      :hackney_pool.child_spec(:first_pool, [max_connections: 100])
       # Start your own worker by calling: App.Worker.start_link(arg1, arg2, arg3)
       # worker(App.Worker, [arg1, arg2, arg3]),
     ]

@@ -19,7 +19,7 @@ defmodule App.Mixfile do
   def application do
     [
       mod: {App.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :httpoison]
     ]
   end
 
@@ -35,7 +35,10 @@ defmodule App.Mixfile do
       {:phoenix, "~> 1.3.3"},
       {:phoenix_pubsub, "~> 1.0"},
       {:gettext, "~> 0.11"},
-      {:cowboy, "~> 1.0"}
+      {:cowboy, "~> 1.0"},
+      {:floki, "~> 0.20.0"},
+      {:httpoison, "~> 1.0"},
+      {:html5ever, "~> 0.5.0"}
     ]
   end
 end
