@@ -20,6 +20,9 @@ RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-ke
     apt-get -yqq install google-chrome-stable && \
     rm -rf /var/lib/apt/lists/*
 
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 RUN mix local.hex --force
 
 RUN mkdir /app
@@ -28,6 +31,11 @@ WORKDIR /app
 
 RUN mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 RUN mix deps.get
+
+WORKDIR /app/deps/html5ever/native/html5ever_nif/
+RUN cargo update
+WORKDIR /app
+
 RUN mix local.rebar --force
 RUN mix deps.compile
 CMD mix test
