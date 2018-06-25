@@ -1,35 +1,40 @@
 defmodule Collector.Example do
-  alias Collector.{InstagramWeb, Async}
+  alias Collector.{InstagramWeb}
 
   def parse(link) do
      link
       |> InstagramWeb.fetch_and_parse
       |> map_links
+      |> from_links
+  end
+
+  def from_links(links) do
+    links
       |> get_interactors
       |> get_public_accounts
   end
 
   defp get_interactors(links) do
     links
-      |> Enum.map(fn link -> Async.async_send(link, &get_screen_names/1) end)
-      |> Enum.flat_map(fn _ -> Async.collect() end)
+      |> Enum.map(fn link -> Task.async(fn -> get_screen_names(link) end) end)
+      |> Enum.flat_map(fn task -> Task.await(task) end)
       |> Enum.uniq
   end
 
   def get_public_accounts(screen_names) do
     screen_names
-      |> Enum.take(80)
-      |> Enum.chunk_every(40)
+      |> Enum.take(10)
+      |> Enum.chunk_every(5)
       |> Enum.flat_map(fn screen_names ->
-          Process.sleep(5000)
+          Process.sleep(1000)
           get_accounts_by_chunk(screen_names)
       end)
   end
 
   def get_accounts_by_chunk(screen_names) do
     screen_names
-      |> Enum.map(fn screen_name -> Async.async_send(screen_name, &get_profile_info/1) end)
-      |> Enum.map(fn _ -> Async.collect end)
+      |> Enum.map(fn screen_name -> Task.async(fn -> get_profile_info(screen_name) end) end)
+      |> Enum.map(fn task -> Task.await(task) end)
   end
 
   defp get_screen_names(link) do
@@ -42,7 +47,7 @@ defmodule Collector.Example do
     link = "https://www.instagram.com/#{screen_name}/"
       link
       |> InstagramWeb.fetch_and_parse
-      |> profile_info(screen_name)
+      |> profile_info()
   end
 
   defp map_links({:ok, %{
@@ -65,6 +70,8 @@ defmodule Collector.Example do
       "https://www.instagram.com/p/#{code}/"
     end)
   end
+
+  defp map_links(_), do: []
 
   defp map_screen_names({:ok, %{
     "entry_data" => %{
@@ -90,19 +97,24 @@ defmodule Collector.Example do
     liker_screen_names ++ commenter_screen_names
   end
 
+  defp map_screen_names(_), do: []
+
   defp profile_info({:ok, %{
     "entry_data" => %{
       "ProfilePage" => [
         %{
           "graphql" => %{
             "user" => %{
-              "is_private" => private
+              "is_private" => private,
+              "profile_pic_url" => profile_url,
+              "full_name" => full_name,
+              "username" => username
             }
           }
         }
       ]
     }
-  }}, screen_name) do
-    %{screen_name => private}
+  }}) do
+    %{screen_name: username, private: private, profile_url: profile_url, full_name: full_name, username: username}
   end
 end

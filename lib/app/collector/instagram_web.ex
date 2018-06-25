@@ -9,10 +9,8 @@ defmodule Collector.InstagramWeb do
 
   defp get_page(link) do
     case HTTPoison.get(link, [], hackney: [pool: :first_pool]) do
-      {:ok, %HTTPoison.Response{body: body, status_code: status_code}} ->
-        IO.puts "link: #{link}, status_code: #{status_code}"
-        body
-      {:error, %HTTPoison.Error{}} -> get_page(link)
+      {:ok, %HTTPoison.Response{body: body, status_code: status_code}} -> body
+      {:error, %HTTPoison.Error{reason: {:closed, body}}} -> body
     end
   end
 
@@ -26,4 +24,6 @@ defmodule Collector.InstagramWeb do
     Regex.named_captures(~r/(?<data>.+);/, text)["data"]
       |> Poison.decode
   end
+
+  defp get_match_data(_), do: %{}
 end

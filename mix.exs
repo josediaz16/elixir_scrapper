@@ -38,7 +38,8 @@ defmodule App.Mixfile do
       {:cowboy, "~> 1.0"},
       {:floki, "~> 0.20.0"},
       {:httpoison, "~> 1.0"},
-      {:html5ever, "~> 0.5.0"}
+      {:html5ever, "~> 0.5.0"},
+      {:hound, "~> 1.0"}
     ]
   end
 end
