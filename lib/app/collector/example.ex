@@ -23,8 +23,8 @@ defmodule Collector.Example do
 
   def get_public_accounts(screen_names) do
     screen_names
-      |> Enum.take(10)
-      |> Enum.chunk_every(5)
+      |> Enum.take(100)
+      |> Enum.chunk_every(20)
       |> Enum.flat_map(fn screen_names ->
           Process.sleep(1000)
           get_accounts_by_chunk(screen_names)

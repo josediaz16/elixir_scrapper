@@ -20,7 +20,7 @@ config :logger, :console,
 
 config :floki, :htmlparser, Floki.HTMLParser.Html5ever
 
-config :hound, driver: "phantomjs"
+config :hound, driver: "selenium", browser: "firefox", host: "http://scrapper", port: 4444
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
